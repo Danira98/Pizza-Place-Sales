@@ -1,3 +1,4 @@
+
 CREATE TABLE orders (
 	order_id int,
 	order_date date,
@@ -52,11 +53,65 @@ SELECT*FROM customers_per_day;
 
 -- Peak hours for business
 SELECT COUNT(order_id),
-	datepart(hour,order_time) as hour
+	EXTRACT(hour from order_time) as hours
 INTO peak_hours
 FROM orders
-GROUP BY datepart(hour,order_time)
+GROUP BY hours
 ORDER BY COUNT(order_id) DESC;
 
 SELECT*FROM peak_hours;
-DROP TABLE peak_hours;
+
+--How many pizzas are typically in an order?
+SELECT AVG(quantity)
+INTO avg_orders
+FROM order_details;
+
+SELECT*FROM avg_orders;
+
+--Best sellers
+SELECT*FROM order_details;
+
+SELECT count(order_id),
+	pizza_id
+INTO best_sellers
+FROM order_details
+GROUP BY (pizza_id)
+ORDER BY COUNT(order_id) DESC;
+
+SELECT*FROM best_sellers;
+
+-- How much revenue was brought this year?
+
+SELECT SUM(p.price *od.quantity)
+INTO revenue
+FROM order_details AS od
+INNER JOIN pizzas as p
+ON(od.pizza_id=p.pizza_id);
+
+SELECT*FROM revenue;
+
+-- How much revenue was brought per month
+SELECT SUM(p.price *od.quantity) AS rev,
+	EXTRACT(MONTH FROM o.order_date) AS months
+INTO sales_per_month
+FROM order_details AS od
+JOIN orders as o
+ON(od.order_id=o.order_id)
+JOIN pizzas as p
+ON(od.pizza_id=p.pizza_id)
+GROUP BY (months)
+ORDER BY rev DESC;
+
+
+SELECT*FROM sales_per_month;
+
+-- Least sold
+
+SELECT count(order_id),
+	pizza_id
+INTO least_sold
+FROM order_details
+GROUP BY (pizza_id)
+ORDER BY COUNT(order_id);
+
+SELECT*FROM least_sold;
