@@ -34,11 +34,6 @@ CREATE TABLE order_details (
 	FOREIGN KEY(order_id) REFERENCES orders(order_id)
 );
 
-SELECT*FROM orders;
-
---DROP TABLE pizzas CASCADE;
---DROP TABLE order_details;
-
 --Code to answer the first set of questions:
 
 --How many customers do we have each day(descending order)?
@@ -62,10 +57,15 @@ ORDER BY COUNT(order_id) DESC;
 SELECT*FROM peak_hours;
 
 --How many pizzas are typically in an order?
-SELECT AVG(quantity)
+-- Use FROM(SELECT...) AS name; when doing operations like these
+SELECT
+	SUM(od.total_quantity)/COUNT(order_id) AS Pizza_avg
 INTO avg_orders
-FROM order_details;
-
+FROM(
+	SELECT order_id,
+		SUM(quantity)as total_quantity
+	FROM order_details
+	GROUP BY order_id)AS od;
 SELECT*FROM avg_orders;
 
 --Best sellers
